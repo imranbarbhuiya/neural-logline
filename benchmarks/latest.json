@@ -1,0 +1,14 @@
+{
+  "generatedAt": "2026-09-19",
+  "runtime": "Bun 1.4.1, macOS arm64",
+  "corpus": "1,000 deterministic synthetic held-out lines",
+  "seed": "0xdecafbad",
+  "exactLineAccuracy": 1,
+  "tokenAccuracy": 1,
+  "lines": 1000,
+  "tokens": 7890,
+  "minifiedBundleBytes": 21131,
+  "warmLinesPerSecond": 36357,
+  "warmMicrosecondsPerLine": 27.5,
+  "warning": "This measures the documented synthetic format family, not arbitrary production logs."
+}

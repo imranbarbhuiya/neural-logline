@@ -1,0 +1,25 @@
+{
+  "name": "neural-logline",
+  "version": "0.1.0",
+  "description": "A tiny local model that extracts timestamps, levels, sources, and messages from log lines.",
+  "type": "module",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "MODEL_CARD.md", "LICENSE"],
+  "sideEffects": false,
+  "license": "MIT",
+  "scripts": {
+    "build": "bun run scripts/build.ts",
+    "test": "bun test",
+    "train": "bun run training/train.ts",
+    "evaluate": "bun run training/evaluate.ts",
+    "benchmark": "bun run scripts/benchmark.ts",
+    "privacy": "bun run scripts/privacy.ts",
+    "check": "bun test && bun run evaluate && bun run build && bun run privacy"
+  },
+  "keywords": ["logs", "parser", "machine-learning", "browser", "local-first", "typescript"]
+}

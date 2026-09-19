@@ -1,0 +1,9 @@
+dist/
+node_modules/
+training/runs/
+.DS_Store
+*.log
+*.pem
+*.key
+.env*
+!.env.example
