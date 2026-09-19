@@ -14,6 +14,20 @@ parse("2026-09-19T10:42:01.123Z ERROR worker failed to decode response body");
 // }
 ```
 
+## CLI
+
+Run one line without installing anything:
+
+```sh
+npx neural-logline "2026-09-19T10:42:01Z ERROR api request failed"
+```
+
+Or parse a stream as JSON Lines:
+
+```sh
+cat application.log | npx neural-logline
+```
+
 ## Why
 
 Template miners such as Drain3 work best after structured headers have been removed. Existing log viewers commonly maintain regular expressions for each known timestamp and prefix. This experiment asks whether a very small model can provide a local fallback for unfamiliar plain-text prefixes.

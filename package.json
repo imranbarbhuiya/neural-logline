@@ -2,6 +2,15 @@
   "name": "neural-logline",
   "version": "0.1.0",
   "description": "A tiny local model that extracts timestamps, levels, sources, and messages from log lines.",
+  "author": "Parbez <imranbarbhuiya.fsd@gmail.com>",
+  "homepage": "https://github.com/imranbarbhuiya/neural-logline#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/imranbarbhuiya/neural-logline.git"
+  },
+  "bugs": {
+    "url": "https://github.com/imranbarbhuiya/neural-logline/issues"
+  },
   "type": "module",
   "exports": {
     ".": {
@@ -9,9 +18,15 @@
       "import": "./dist/index.js"
     }
   },
+  "bin": {
+    "neural-logline": "./dist/cli.js"
+  },
   "files": ["dist", "MODEL_CARD.md", "LICENSE"],
   "sideEffects": false,
   "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "build": "bun run scripts/build.ts",
     "test": "bun test",
@@ -19,7 +34,8 @@
     "evaluate": "bun run training/evaluate.ts",
     "benchmark": "bun run scripts/benchmark.ts",
     "privacy": "bun run scripts/privacy.ts",
-    "check": "bun test && bun run evaluate && bun run build && bun run privacy"
+    "check": "bun test && bun run evaluate && bun run build && bun run privacy",
+    "prepack": "bun run check"
   },
   "keywords": ["logs", "parser", "machine-learning", "browser", "local-first", "typescript"]
 }

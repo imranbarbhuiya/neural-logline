@@ -19,3 +19,28 @@ describe("parse", () => {
   test("handles empty lines", () => expect(parse("").message.text).toBe(""));
   test("parses batches", () => expect(parseMany(["INFO api ready", "WARN cache retrying"])).toHaveLength(2));
 });
+
+describe("cli", () => {
+  test("parses an argument as JSON Lines", () => {
+    const result = Bun.spawnSync([
+      process.execPath,
+      new URL("../src/cli.ts", import.meta.url).pathname,
+      "2026-09-19T10:42:01Z ERROR api request failed",
+    ]);
+    expect(result.exitCode).toBe(0);
+    const parsed = JSON.parse(result.stdout.toString());
+    expect(parsed.level.normalized).toBe("error");
+    expect(parsed.message.text).toBe("request failed");
+  });
+
+  test("parses piped lines", async () => {
+    const process = Bun.spawn([globalThis.process.execPath, new URL("../src/cli.ts", import.meta.url).pathname], {
+      stdin: "pipe",
+      stdout: "pipe",
+    });
+    process.stdin.write("INFO api ready\nWARN cache retrying\n");
+    process.stdin.end();
+    expect(await process.exited).toBe(0);
+    expect((await new Response(process.stdout).text()).trim().split("\n")).toHaveLength(2);
+  });
+});
