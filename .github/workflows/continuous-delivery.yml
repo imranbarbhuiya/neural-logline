@@ -23,6 +23,8 @@ jobs:
           node-version: 24
           registry-url: https://registry.npmjs.org/
           package-manager-cache: false
+      - name: Build package
+        run: bun run build
       - name: Publish
         run: |
           PACKAGE_NAME=$(node -p "require('./package.json').name")
