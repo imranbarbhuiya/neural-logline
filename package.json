@@ -19,7 +19,7 @@
     }
   },
   "bin": {
-    "neural-logline": "./dist/cli.js"
+    "neural-logline": "dist/cli.js"
   },
   "files": ["dist", "MODEL_CARD.md", "LICENSE"],
   "sideEffects": false,
