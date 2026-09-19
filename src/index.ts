@@ -6,7 +6,7 @@ export type { Label, ModelWeights, ParsedLogLine, Span };
 
 const LEVELS: Record<string, "trace" | "debug" | "info" | "warn" | "error" | "fatal"> = {
   trace: "trace", debug: "debug", info: "info", notice: "info", warn: "warn", warning: "warn",
-  error: "error", err: "error", fatal: "fatal", critical: "fatal", crit: "fatal",
+  log: "info", error: "error", err: "error", fatal: "fatal", critical: "fatal", crit: "fatal",
 };
 
 function clean(text: string): string {
@@ -35,6 +35,37 @@ export function parse(line: string, options: { weights?: ModelWeights } = {}): P
   }
   const vectors = features(rawTokens);
   const tokens = rawTokens.map((token, index) => ({ ...token, ...predict(vectors[index], options.weights) }));
+
+  // Exact severity words are stronger evidence than the learned label. Besides correcting
+  // unfamiliar layouts, this keeps HTTP methods and status codes out of the level span.
+  const exactLevel = tokens.findIndex((token) => LEVELS[clean(token.text).toLowerCase()] !== undefined);
+  if (exactLevel >= 0) {
+    for (const token of tokens) {
+      if (token.label === "level") token.label = "other";
+    }
+    tokens[exactLevel].label = "level";
+    for (let i = exactLevel + 1; i < tokens.length; i++) {
+      if (tokens[i].label === "timestamp") tokens[i].label = "other";
+    }
+
+    // Twelve-hour timestamps often put AM/PM immediately before the severity.
+    const meridiem = tokens[exactLevel - 1];
+    if (meridiem && /^(?:am|pm)$/i.test(clean(meridiem.text))) meridiem.label = "timestamp";
+
+    // Bracketed logger names are a common source marker (NestJS, pino-pretty, and others).
+    const sourceIndex = exactLevel + 1;
+    if (tokens[sourceIndex] && /^\[[^\]]+\]$/.test(tokens[sourceIndex].text)) {
+      tokens[sourceIndex].label = "source";
+      let messageIndex = sourceIndex + 1;
+      if (tokens[messageIndex] && /^(?:\||-|:)$/.test(tokens[messageIndex].text)) messageIndex++;
+      for (let i = messageIndex; i < tokens.length; i++) tokens[i].label = "message";
+    }
+  }
+
+  // A JavaScript stack frame is continuation text rather than a standalone log header.
+  if (/^\s*at\s+/.test(line)) {
+    for (const token of tokens) token.label = "message";
+  }
 
   // A message is a suffix by contract. This prevents an isolated level-like word inside prose
   // from splitting the output and gives deterministic span assembly after neural labeling.

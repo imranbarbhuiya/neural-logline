@@ -18,6 +18,29 @@ describe("parse", () => {
 
   test("handles empty lines", () => expect(parse("").message.text).toBe(""));
   test("parses batches", () => expect(parseMany(["INFO api ready", "WARN cache retrying"])).toHaveLength(2));
+
+  test("parses NestJS access and error lines", () => {
+    const access = parse("[Nest] 1  - 09/19/2026, 7:09:15 PM     LOG [HTTP]  | GET | 404 | /wp/wp/v2/users | 1ms");
+    expect(access.timestamp?.text).toBe("[Nest] 1  - 09/19/2026, 7:09:15 PM");
+    expect(access.level?.normalized).toBe("info");
+    expect(access.level?.text).toBe("LOG");
+    expect(access.source?.text).toBe("[HTTP]");
+    expect(access.message.text).toStartWith("GET | 404");
+
+    const error = parse("[Nest] 1  - 09/19/2026, 7:09:15 PM   ERROR [BodySizeExceptionFilter] Exception caught");
+    expect(error.timestamp?.text).toBe("[Nest] 1  - 09/19/2026, 7:09:15 PM");
+    expect(error.level?.normalized).toBe("error");
+    expect(error.source?.text).toBe("[BodySizeExceptionFilter]");
+    expect(error.message.text).toBe("Exception caught");
+  });
+
+  test("treats JavaScript stack frames as continuation messages", () => {
+    const frame = parse("    at callback (file:///app/router.js:82:19)");
+    expect(frame.timestamp).toBeUndefined();
+    expect(frame.level).toBeUndefined();
+    expect(frame.source).toBeUndefined();
+    expect(frame.message.text).toBe("at callback (file:///app/router.js:82:19)");
+  });
 });
 
 describe("cli", () => {
